@@ -1,141 +1,221 @@
-use std::fmt::{Display};
-use std::ops::{Sub, SubAssign};
+use std::collections::HashMap;
+use std::fmt::Display;
+use std::num::ParseFloatError;
+use std::ops::{Add, Sub};
+// use crate::math::sqrt;
+use crate::complex::Complex;
 use crate::rational::Rational;
+use itertools::Itertools;
+use num::{One, Signed, Zero};
 
-pub enum Roots<T> {
+pub enum Roots<T, V> {
     Zero,
     Any,
     One(T),
     Two(T, T),
-    Complex(T, T),
+    Complex(V, V),
 }
 
-#[derive(Debug,Copy,Clone)]
-pub struct Polynomial {
-    a: f32,
-    b: f32,
-    c: f32,
-}
+#[derive(Debug, Clone)]
+pub struct Polynomial(pub HashMap<i32, f32>);
 
 impl Polynomial {
     pub fn new() -> Polynomial {
-        Self {
-            a: 0.,
-            b: 0.,
-            c: 0.,
-        }
+        Polynomial(HashMap::new())
     }
-    pub fn from(ar: [f32; 3]) -> Polynomial {
-        Self {
-            a: ar[0],
-            b: ar[1],
-            c: ar[2],
-        }
+
+    pub fn insert(&mut self, key: i32, value: f32) {
+        self.0.insert(key, value);
     }
+
+    pub fn get(&self, key: i32) -> &f32 {
+        self.0.get(&key).or(Some(&0.0)).unwrap()
+    }
+
+    pub fn from_vec(v: &Vec<f32>) -> Polynomial {
+        let mut polynomial = Polynomial::new();
+        let mut exponent = 0;
+
+        for c in v {
+            polynomial.insert(exponent, *c);
+            exponent += 1;
+        }
+        polynomial
+    }
+
+    pub fn from_str(raw: &str) -> Result<Polynomial, ParseFloatError> {
+        let split = raw.split(" ").collect::<Vec<&str>>();
+        let mut poly = Polynomial::new();
+        let mut sign = 1.;
+        let mut exponent = 0;
+
+        for p in split.iter() {
+            if p.is_empty() {
+                continue;
+            } else if p.to_string() == "-" {
+                sign = -1.;
+            } else if p.to_string() == "+" {
+                sign = 1.;
+            } else if p.to_string() == "*" {
+                exponent += 1;
+            } else if p.to_lowercase().contains("x^") {
+                continue;
+            } else {
+                match p.parse::<f32>() {
+                    Ok(v) => poly.insert(exponent, sign * v),
+                    Err(error) => return Err(error),
+                };
+            }
+        }
+        Ok(poly)
+    }
+
     pub fn degree(&self) -> i32 {
-        if self.a != 0. {
-            2
-        } else if self.b != 0. {
-            1
-        } else if self.c != 0. {
-            0
-        } else {
-            -1
-        }
+        self.0.len() as i32 - 1
     }
 
-    pub fn discriminant(p : &Polynomial) -> f32 {
-        p.b * p.b - 4.0 * p.a * p.c
+    pub fn discriminant(p: &Polynomial) -> f32 {
+        p.get(1) * p.get(1) - 4. * p.get(2) * p.get(0)
     }
 
-
-    pub fn solve_roots(p : &Polynomial) -> Roots<Rational> {
-        let degree = p.degree();
-
-        match degree {
+    pub fn solve_roots(p: &Polynomial) -> Roots<Rational, Complex> {
+        match p.degree() {
             0 => Roots::Any,
             1 => Self::solve_affine(p),
             2 => Self::solve_quadratic(p),
             _ => Roots::Zero,
         }
-}
+    }
 
-    fn solve_affine(p : &Polynomial) -> Roots<Rational> {
-        // bx+c = 0  -> x = -c/b
-        if p.b == 0. {
+    fn solve_affine(p: &Polynomial) -> Roots<Rational, Complex> {
+        if p.get(1).is_zero() {
             Roots::Zero
         } else {
-            Roots::One(Rational::new(-p.c, p.b))
+            let r1 = Rational::from_f32(-p.get(0)).unwrap();
+            let r2 = Rational::from_f32(*p.get(1)).unwrap();
+            let r = r1 / r2;
+            Roots::One(r)
         }
+        // Roots::Any
     }
 
-
-
-    fn solve_quadratic(p : &Polynomial) -> Roots<Rational> {
-
-        match Polynomial::discriminant(p) {
-            d if d > 0.0 => {
-                // r = (-b +/- sqrt(D)) / 2a
-                let r1 = Rational::new(-p.b - d.sqrt(), 2.*p.a);
-                let r2 = Rational::new(-p.b + d.sqrt(), 2.*p.a);
-                Roots::Two(r1, r2)
-            },
-            d if d < 0.0  => {
-                // r = (-b +/- i *sqrt(-D)) / 2a
-
-                Roots::Zero
-                // Roots::TwoComplex(base - dbase, base + dbase)
-            },
-            _  => {
-                // r = -b/2a
-                let r = Rational::new(-p.b, 2.*p.a);
-                Roots::One(r)
-            },
-        }
+    fn solve_quadratic(p: &Polynomial) -> Roots<Rational, Complex> {
+        // match Polynomial::discriminant(p) {
+        //     d if d > 0.0 => {
+        //         let r1 = Rational::new(-p.get(1) - sqrt(d), 2.*p.get(2));
+        //         let r2 = Rational::new(-p.get(1) + sqrt(d), 2.*p.get(2));
+        //         Roots::Two(r1, r2)
+        //     },
+        //     d if d < 0.0  => {
+        //         // r = (-b +/- i *sqrt(-D)) / 2a
+        //         let r1 = Complex::new(-p.get(1) - sqrt(-d), -p.get(2));
+        //         let r2 = Complex::new(-p.get(1) + sqrt(-d), -p.get(2));
+        //         Roots::Complex(r1, r2)
+        //     },
+        //     _  => {
+        //         let r = Rational::new(-p.get(1), 2.*p.get(2));
+        //         Roots::One(r)
+        //     },
+        // }
+        Roots::Any
     }
-
 }
-
-
 
 impl Display for Polynomial {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        let mut s1 = String::new();
-        let mut s2 = String::new();
-        let mut s3 = String::new();
-
-        if self.c != 0. {
-            s1 = std::fmt::format(format_args!("{}", self.c));
+        if self.0.is_empty() {
+            write!(f, "0")
+        } else {
+            let mut s = String::new();
+            for exponent in self.0.keys().sorted() {
+                if exponent != self.0.keys().min().expect("exponent should not be empty") {
+                    s.push_str(&match self.get(*exponent).is_negative() {
+                        true => " ",
+                        false => " + ",
+                    });
+                }
+                s.push_str(&match exponent {
+                    e if e.is_zero() => format!("{}", self.get(*exponent)),
+                    e if e.is_one() => format!("{} * X", self.get(*exponent)),
+                    _ => format!("{} * X^{}", self.get(*exponent), exponent),
+                });
+            }
+            write!(f, "{}", s)
         }
-        if self.b != 0. {
-            s2 = std::fmt::format(format_args!(" + {} * X", self.b));
-        }
-        if self.a != 0. {
-            s3 = std::fmt::format(format_args!(" + {} * X²", self.a));
-        }
-        if self.a == 0. && self.b == 0. && self.c == 0. {
-            s1 = "0".to_string();
-        }
-        write!(f, "{}{}{} = 0", s1, s2, s3)
     }
 }
 
-impl Sub for Polynomial{
+impl PartialEq for Polynomial {
+    fn eq(&self, other: &Polynomial) -> bool {
+        self.0 == other.0
+    }
+}
+
+impl Add for Polynomial {
+    type Output = Self;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        let mut result = self.clone();
+        for (exponent, value) in rhs.0.iter() {
+            let v = result.get(*exponent) + *value;
+            if v != f32::default() {
+                result.0.insert(*exponent, v);
+            } else {
+                result.0.remove(exponent);
+            }
+        }
+        result
+    }
+}
+
+impl Sub for Polynomial {
     type Output = Self;
 
     fn sub(self, rhs: Self) -> Self::Output {
-        Self {
-            a: self.a - rhs.a,
-            b: self.b - rhs.b,
-            c: self.c - rhs.c,
+        let mut result = self.clone();
+        for (exponent, value) in rhs.0.iter() {
+            let v = result.get(*exponent) - *value;
+            if v != f32::default() {
+                result.0.insert(*exponent, v);
+            } else {
+                result.0.remove(exponent);
+            }
         }
+        result
     }
 }
 
-impl SubAssign for Polynomial{
-    fn sub_assign(&mut self, rhs: Self) {
-        self.a -= rhs.a;
-        self.b -= rhs.b;
-        self.c -= rhs.c;
+#[cfg(test)]
+mod test {
+    use crate::polynomial::Polynomial;
+
+    #[test]
+    fn creation() {
+        let _p = Polynomial::new();
+        let _p = Polynomial::from_str("").expect("should create polynomial zero");
+        let _p = Polynomial::from_str("1").expect("should create polynomial 1");
+    }
+
+    #[test]
+    fn equality() {
+        assert_eq!(Polynomial::from_str("1"), Polynomial::from_str("1"));
+    }
+
+    #[test]
+    fn addition() {
+        let p1 = Polynomial::from_vec(&vec![1., 2., 3.]);
+        let p2 = Polynomial::from_vec(&vec![1., 2., 3.]);
+        let expected = Polynomial::from_vec(&vec![2., 4., 6.]);
+
+        assert_eq!(p1 + p2, expected);
+    }
+
+    #[test]
+    fn substraction() {
+        let p1 = Polynomial::from_vec(&vec![1., 2., 3.]);
+        let p2 = Polynomial::from_vec(&vec![1., 2., 3.]);
+        let expected = Polynomial::from_vec(&vec![]);
+
+        assert_eq!(p1 - p2, expected);
     }
 }
