@@ -25,8 +25,8 @@ fn main() {
     if eq.degree() >= 3 {
         return println!("The polynomial degree is strictly greater than 2, I can't solve.");
     }
-    
-    match Polynomial::solve_roots(&eq) {
+
+    match eq.solve_roots() {
         Roots::Unsolvable => println!("{}", Roots::Unsolvable),
         Roots::Zero => println!("{}", Roots::Zero),
         Roots::Any => println!("{}", Roots::Any),
@@ -36,15 +36,5 @@ fn main() {
             "Discriminant is strictly negative\n{}",
             Roots::Complex(r1, r2)
         ),
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    // use super::*;
-    
-    #[test]
-    fn any() {
-        todo!()
     }
 }

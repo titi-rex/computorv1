@@ -60,15 +60,8 @@ mod tests {
             Rational::new(Sign::Positive, 15, 2),
             Rational::new(Sign::Negative, 15, 2),
         );
-        ordering_complex(
-            Complex::new(0.,0.),
-            Complex::new(2.,10.),
-        );
-        ordering_complex(
-            Complex::new(2.,10.),
-            Complex::new(0.,0.),
-        );
-        
+        ordering_complex(Complex::new(0., 0.), Complex::new(2., 10.));
+        ordering_complex(Complex::new(2., 10.), Complex::new(0., 0.));
     }
 
     fn ordering_rationals(r1: Rational, r2: Rational) {

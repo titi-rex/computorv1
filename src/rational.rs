@@ -1,7 +1,7 @@
-use std::cmp::Ordering;
 use crate::math::{gcd, number_len};
 use crate::sign::Sign;
 use num::{Float, One};
+use std::cmp::Ordering;
 use std::fmt::Display;
 use std::ops::{Add, Div, DivAssign, Mul, Sub};
 
@@ -11,8 +11,6 @@ pub struct Rational {
     numerator: u64,
     denominator: u64,
 }
-
-
 
 impl Rational {
     /// Create a new Rational, automatically reduce it
@@ -26,6 +24,14 @@ impl Rational {
             raw.reduce();
         }
         raw
+    }
+
+    pub fn from_i32(i: i32) -> Self {
+        Self {
+            sign: Sign::from(i as i8),
+            numerator: i.abs() as u64,
+            denominator: 1,
+        }
     }
 
     /// Converts a float into a Rational

@@ -39,15 +39,8 @@ pub fn sqrt(x: f32) -> f32 {
     x.sqrt()
 }
 
-pub fn pow(mut x: i32, n: i32) -> i32 {
-    if n <= 0 {
-        1
-    } else {
-        for _i in 1..n {
-            x *= x;
-        }
-        x
-    }
+pub fn pow(x: i32, n: i32) -> i32 {
+    x.pow(n as u32)
 }
 
 pub fn number_len(n: u64) -> usize {
