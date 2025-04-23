@@ -12,19 +12,7 @@ pub struct Rational {
     denominator: u64,
 }
 
-impl PartialOrd for Rational {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        if self.sign == other.sign {
-            let a = self.numerator * other.denominator;
-            let b = self.denominator * other.numerator;
-            Some(a.cmp(&b))
-        } else if self.sign == Sign::Positive {
-            Some(Ordering::Greater)
-        } else {
-            Some(Ordering::Less)
-        }
-    }
-}
+
 
 impl Rational {
     /// Create a new Rational, automatically reduce it
@@ -44,6 +32,9 @@ impl Rational {
     pub fn from_f32(f: f32) -> Option<Rational> {
         if !f.is_finite() {
             return None;
+        }
+        if f == 0. {
+            return Some(Rational::new(Sign::Positive, 0, 1));
         }
         let (mantissa, exponent, sign) = f.integer_decode();
         let ratio_sign = if sign == 1 {
@@ -83,8 +74,8 @@ impl Rational {
     }
 
     /// Compute the Rational as a float
-    pub fn compute(&self) -> f64 {
-        let tmp = self.sign * (self.numerator as f64 / self.denominator as f64);
+    pub fn compute(&self) -> f32 {
+        let tmp = self.sign * (self.numerator as f32 / self.denominator as f32);
         (tmp * 100000.0).round() / 100000.0
     }
 
@@ -109,6 +100,20 @@ impl Display for Rational {
             write!(f, "{}", self.numerator())
         } else {
             write!(f, "{}/{}", self.numerator, self.denominator)
+        }
+    }
+}
+
+impl PartialOrd for Rational {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        if self.sign == other.sign {
+            let a = self.numerator * other.denominator;
+            let b = self.denominator * other.numerator;
+            Some(a.cmp(&b))
+        } else if self.sign == Sign::Positive {
+            Some(Ordering::Greater)
+        } else {
+            Some(Ordering::Less)
         }
     }
 }

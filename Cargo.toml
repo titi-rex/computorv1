@@ -6,3 +6,4 @@ edition = "2024"
 [dependencies]
 num = "0.4.3"
 itertools = "0.14.0"
+gcd = "2.3.0"

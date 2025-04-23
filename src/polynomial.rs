@@ -181,6 +181,15 @@ mod test {
     }
 
     #[test]
+    fn degree() {
+        assert_eq!(Polynomial::from_vec(&vec![1.]).degree(), 0);
+        assert_eq!(Polynomial::from_vec(&vec![1.,1.]).degree(), 1);
+        assert_eq!(Polynomial::from_vec(&vec![1.,1.,1.]).degree(), 2);
+        assert_eq!(Polynomial::from_vec(&vec![1.,1.,1.,1.]).degree(), 3);
+        assert_eq!(Polynomial::from_vec(&vec![1.,1.,1.,1.,1.]).degree(), 4);        
+    }
+    
+    #[test]
     fn equality() {
         assert_eq!(Polynomial::from_str("1"), Polynomial::from_str("1"));
     }
