@@ -52,6 +52,10 @@ pub fn pow(mut x: i32, n: i32) -> u32 {
     }
 }
 
+pub fn number_len(n: u64) -> usize {
+    n.checked_ilog10().unwrap_or(1) as usize
+}
+
 #[cfg(test)]
 mod test {
     use super::*;

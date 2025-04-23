@@ -1,14 +1,18 @@
-use num::Zero;
+use crate::rational::Rational;
 use std::fmt::Display;
 
+#[derive(Debug, Clone, PartialEq, PartialOrd)]
 pub struct Complex {
-    real: f32,
-    imag: f32,
+    real: Rational,
+    imag: Rational,
 }
 
 impl Complex {
     pub fn new(real: f32, imag: f32) -> Complex {
-        Complex { real, imag }
+        Complex {
+            real: Rational::from_f32(real).unwrap(),
+            imag: Rational::from_f32(imag).unwrap(),
+        }
     }
 }
 

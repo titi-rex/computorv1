@@ -1,8 +1,9 @@
+use std::cmp::Ordering;
+use crate::math::{gcd, number_len};
 use crate::sign::Sign;
-use crate::math::gcd;
 use num::{Float, One};
 use std::fmt::Display;
-use std::ops::{Add, Div, DivAssign, Mul};
+use std::ops::{Add, Div, DivAssign, Mul, Sub};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Rational {
@@ -11,8 +12,21 @@ pub struct Rational {
     denominator: u64,
 }
 
+impl PartialOrd for Rational {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        if self.sign == other.sign {
+            let a = self.numerator * other.denominator;
+            let b = self.denominator * other.numerator;
+            Some(a.cmp(&b))
+        } else if self.sign == Sign::Positive {
+            Some(Ordering::Greater)
+        } else {
+            Some(Ordering::Less)
+        }
+    }
+}
+
 impl Rational {
-    
     /// Create a new Rational, automatically reduce it
     pub fn new(sign: Sign, numerator: u64, denominator: u64) -> Self {
         let mut raw = Rational {
@@ -24,14 +38,6 @@ impl Rational {
             raw.reduce();
         }
         raw
-    }
-
-    pub fn from_couple(num: i32, denom: i32) -> Self {
-        if num.signum() == denom.signum() {
-            Rational::new(Sign::Negative, num.abs() as u64, denom.abs() as u64)
-        } else {
-            Rational::new(Sign::Positive, num.abs() as u64, denom.abs() as u64)
-        }
     }
 
     /// Converts a float into a Rational
@@ -55,6 +61,12 @@ impl Rational {
         }
     }
 
+    pub fn from_f32_couple(num: f32, denom: f32) -> Option<Rational> {
+        let mut r = Rational::from_f32(num)? / Rational::from_f32(denom)?;
+        r.reduce();
+        Some(r)
+    }
+
     /// Get the sign
     pub fn sign(&self) -> &Sign {
         &self.sign
@@ -72,7 +84,12 @@ impl Rational {
 
     /// Compute the Rational as a float
     pub fn compute(&self) -> f64 {
-        self.sign * (self.numerator / self.denominator) as f64
+        let tmp = self.sign * (self.numerator as f64 / self.denominator as f64);
+        (tmp * 100000.0).round() / 100000.0
+    }
+
+    pub fn is_zero(&self) -> bool {
+        self.numerator == 0
     }
 
     /// Reduce the Rational as an irreducible fraction if possible
@@ -86,7 +103,9 @@ impl Rational {
 
 impl Display for Rational {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        if self.denominator() == 1 {
+        if number_len(self.numerator) >= 5 {
+            write!(f, "{}", self.compute())
+        } else if self.denominator() == 1 {
             write!(f, "{}", self.numerator())
         } else {
             write!(f, "{}/{}", self.numerator, self.denominator)
@@ -108,9 +127,23 @@ impl Add for Rational {
     }
 }
 
-impl Div for Rational {
+impl Sub for Rational {
     type Output = Rational;
-    fn div(self, rhs: Rational) -> Self::Output {
+    fn sub(self, rhs: Rational) -> Self::Output {
+        let numerator = self.sign * (self.numerator * rhs.denominator) as i128
+            - (self.denominator * rhs.numerator) as i128;
+
+        Rational::new(
+            Sign::from(numerator.signum() as i8),
+            numerator.abs() as u64,
+            self.denominator * rhs.denominator,
+        )
+    }
+}
+
+impl Mul for Rational {
+    type Output = Rational;
+    fn mul(self, rhs: Rational) -> Self::Output {
         Rational::new(
             self.sign * rhs.sign,
             self.numerator * rhs.denominator,
@@ -119,9 +152,9 @@ impl Div for Rational {
     }
 }
 
-impl Mul for Rational {
+impl Div for Rational {
     type Output = Rational;
-    fn mul(self, rhs: Rational) -> Self::Output {
+    fn div(self, rhs: Rational) -> Self::Output {
         Rational::new(
             self.sign * rhs.sign,
             self.numerator * rhs.denominator,
@@ -153,12 +186,20 @@ mod tests {
     fn new() {
         assert_eq!(
             Rational::new(Sign::Negative, 1, 2),
-            Rational {sign: Sign::Negative, numerator: 1, denominator: 2},
+            Rational {
+                sign: Sign::Negative,
+                numerator: 1,
+                denominator: 2
+            },
         );
 
         assert_eq!(
             Rational::new(Sign::Positive, 5, 2),
-            Rational {sign: Sign::Positive, numerator: 5, denominator: 2},
+            Rational {
+                sign: Sign::Positive,
+                numerator: 5,
+                denominator: 2
+            },
         );
     }
 
@@ -166,20 +207,32 @@ mod tests {
     fn reduce() {
         assert_eq!(
             Rational::new(Sign::Positive, 10, 2),
-            Rational {sign: Sign::Positive, numerator: 5, denominator: 1},
+            Rational {
+                sign: Sign::Positive,
+                numerator: 5,
+                denominator: 1
+            },
         );
 
         assert_eq!(
             Rational::new(Sign::Positive, 6, 2),
-            Rational {sign: Sign::Positive, numerator: 3, denominator: 1},
+            Rational {
+                sign: Sign::Positive,
+                numerator: 3,
+                denominator: 1
+            },
         );
 
         assert_eq!(
             Rational::new(Sign::Positive, 50, 20),
-            Rational {sign: Sign::Positive, numerator: 5, denominator: 2},
+            Rational {
+                sign: Sign::Positive,
+                numerator: 5,
+                denominator: 2
+            },
         );
     }
-    
+
     #[test]
     fn from_f32() {
         assert_eq!(

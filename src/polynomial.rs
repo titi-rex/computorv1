@@ -1,25 +1,18 @@
+use crate::complex::Complex;
+use crate::math::sqrt;
+use crate::rational::Rational;
+use itertools::Itertools;
 use std::collections::HashMap;
 use std::fmt::Display;
 use std::num::ParseFloatError;
 use std::ops::{Add, Sub};
-// use crate::math::sqrt;
-use crate::complex::Complex;
-use crate::rational::Rational;
-use itertools::Itertools;
-use num::{One, Signed, Zero};
-
-pub enum Roots<T, V> {
-    Zero,
-    Any,
-    One(T),
-    Two(T, T),
-    Complex(V, V),
-}
+use crate::root::Roots;
 
 #[derive(Debug, Clone)]
 pub struct Polynomial(pub HashMap<i32, f32>);
 
 impl Polynomial {
+    const ERR_NAN_POLY: &'static str = "Polynomial shouldn't contain NAN coefficients";
     pub fn new() -> Polynomial {
         Polynomial(HashMap::new())
     }
@@ -80,44 +73,35 @@ impl Polynomial {
 
     pub fn solve_roots(p: &Polynomial) -> Roots<Rational, Complex> {
         match p.degree() {
-            0 => Roots::Any,
+            0 if *p.get(0) == 0. => Roots::Any,
+            0 if *p.get(0) != 0. => Roots::Zero,
             1 => Self::solve_affine(p),
             2 => Self::solve_quadratic(p),
-            _ => Roots::Zero,
+            _ => Roots::Unsolvable,
         }
     }
 
     fn solve_affine(p: &Polynomial) -> Roots<Rational, Complex> {
-        if p.get(1).is_zero() {
-            Roots::Zero
-        } else {
-            let r1 = Rational::from_f32(-p.get(0)).unwrap();
-            let r2 = Rational::from_f32(*p.get(1)).unwrap();
-            let r = r1 / r2;
-            Roots::One(r)
-        }
-        // Roots::Any
+        Roots::One(Rational::from_f32_couple(-p.get(0), *p.get(1)).expect(Polynomial::ERR_NAN_POLY))
     }
 
     fn solve_quadratic(p: &Polynomial) -> Roots<Rational, Complex> {
-        // match Polynomial::discriminant(p) {
-        //     d if d > 0.0 => {
-        //         let r1 = Rational::new(-p.get(1) - sqrt(d), 2.*p.get(2));
-        //         let r2 = Rational::new(-p.get(1) + sqrt(d), 2.*p.get(2));
-        //         Roots::Two(r1, r2)
-        //     },
-        //     d if d < 0.0  => {
-        //         // r = (-b +/- i *sqrt(-D)) / 2a
-        //         let r1 = Complex::new(-p.get(1) - sqrt(-d), -p.get(2));
-        //         let r2 = Complex::new(-p.get(1) + sqrt(-d), -p.get(2));
-        //         Roots::Complex(r1, r2)
-        //     },
-        //     _  => {
-        //         let r = Rational::new(-p.get(1), 2.*p.get(2));
-        //         Roots::One(r)
-        //     },
-        // }
-        Roots::Any
+        match Polynomial::discriminant(p) {
+            d if d > 0.0 => Roots::new_two(
+                Rational::from_f32_couple(-p.get(1) - sqrt(d), 2. * p.get(2))
+                    .expect(Polynomial::ERR_NAN_POLY),
+                Rational::from_f32_couple(-p.get(1) + sqrt(d), 2. * p.get(2))
+                    .expect(Polynomial::ERR_NAN_POLY),
+            ),
+            d if d < 0.0 => Roots::new_complex(
+                Complex::new(-p.get(1) - sqrt(-d), -p.get(2)),
+                Complex::new(-p.get(1) + sqrt(-d), -p.get(2)),
+            ),
+            _ => Roots::One(
+                Rational::from_f32_couple(-p.get(1), 2. * p.get(2))
+                    .expect(Polynomial::ERR_NAN_POLY),
+            ),
+        }
     }
 }
 
@@ -128,15 +112,15 @@ impl Display for Polynomial {
         } else {
             let mut s = String::new();
             for exponent in self.0.keys().sorted() {
-                if exponent != self.0.keys().min().expect("exponent should not be empty") {
-                    s.push_str(&match self.get(*exponent).is_negative() {
+                if exponent != self.0.keys().min().expect("Polynomial exponent should not be empty") {
+                    s.push_str(&match *self.get(*exponent) < 0f32 {
                         true => " ",
                         false => " + ",
                     });
                 }
                 s.push_str(&match exponent {
-                    e if e.is_zero() => format!("{}", self.get(*exponent)),
-                    e if e.is_one() => format!("{} * X", self.get(*exponent)),
+                    e if *e == 0 => format!("{}", self.get(*exponent)),
+                    e if *e == 1 => format!("{} * X", self.get(*exponent)),
                     _ => format!("{} * X^{}", self.get(*exponent), exponent),
                 });
             }

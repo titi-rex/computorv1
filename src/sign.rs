@@ -1,7 +1,8 @@
 use std::ops::{Add, Mul, Neg};
 
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq, PartialOrd, Default)]
 pub enum Sign {
+    #[default]
     Positive,
     Negative,
 }
