@@ -100,12 +100,13 @@ impl Rational {
 
 impl Display for Rational {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        if number_len(self.numerator) >= 5 {
+        println!("len for {}: {}", self.numerator, number_len(self.numerator));
+        if number_len(self.numerator) >= 10 {
             write!(f, "{}", self.compute())
         } else if self.denominator() == 1 {
-            write!(f, "{}", self.numerator())
+            write!(f, "{}{}", self.sign, self.numerator())
         } else {
-            write!(f, "{}/{}", self.numerator, self.denominator)
+            write!(f, "{}{}/{}", self.sign, self.numerator, self.denominator)
         }
     }
 }

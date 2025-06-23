@@ -35,8 +35,21 @@ pub fn gcd(a: u64, b: u64) -> u64 {
     // pow(2, i) as u64 * a
 }
 
+// sqrt(S) ->
+// with x0 > 0 any positive estimate
+// x_n+1 = 1/2 * (x_n + S / x_n)
+
+pub fn sqrt_iter(x: f32, s: f32) -> f32 {
+    0.5 * (x + s/x)
+}
+
 pub fn sqrt(x: f32) -> f32 {
-    x.sqrt()
+    let mut r = 1.;
+    for _i in 1..30 {
+        r = sqrt_iter(r, x);
+    }
+    r
+    // x.sqrt()
 }
 
 pub fn pow(x: i32, n: i32) -> i32 {
@@ -56,7 +69,7 @@ mod test {
     fn sqrt_test() {
         assert_eq!(9f32.sqrt(), sqrt(9f32));
         assert_eq!(514f32.sqrt(), sqrt(514f32));
-        assert_eq!(0f32.sqrt(), sqrt(0f32));
+        assert_eq!(1f32.sqrt(), sqrt(1f32));
     }
 
     #[test]

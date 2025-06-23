@@ -1,4 +1,5 @@
 use std::ops::{Add, Mul, Neg};
+use std::fmt::Display;
 
 #[derive(Debug, Copy, Clone, PartialEq, PartialOrd, Default)]
 pub enum Sign {
@@ -13,6 +14,16 @@ impl Sign {
             Sign::Positive
         } else {
             Sign::Negative
+        }
+    }
+}
+
+impl Display for Sign {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        if *self == Sign::Positive {
+            write!(f, "{}", "")
+        } else {
+            write!(f, "{}", "-")
         }
     }
 }

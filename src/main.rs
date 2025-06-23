@@ -32,9 +32,6 @@ fn main() {
         Roots::Any => println!("{}", Roots::Any),
         Roots::One(r) => println!("Discriminant is zero\n{}", Roots::One(r)),
         Roots::Two(r1, r2) => println!("Discriminant is strictly positive\n{}", Roots::Two(r1, r2)),
-        Roots::Complex(r1, r2) => println!(
-            "Discriminant is strictly negative\n{}",
-            Roots::Complex(r1, r2)
-        ),
+        Roots::Complex(r) => println!("Discriminant is strictly negative\n{}", Roots::Complex(r)),
     }
 }

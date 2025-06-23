@@ -84,21 +84,23 @@ impl Polynomial {
     fn solve_affine(p: &Polynomial) -> Roots<Rational, Complex> {
         Roots::One(Rational::from_f32_couple(-p.get(0), *p.get(1)).expect(Polynomial::ERR_NAN_POLY))
     }
-
+// c = -b/2a ± i V|d|/2a
+// 0:c 1:b 2:a
     fn solve_quadratic(p: &Polynomial) -> Roots<Rational, Complex> {
+        let a = p.get(2);
+        let b = p.get(1);
         match Polynomial::discriminant(p) {
             d if d > 0.0 => Roots::new_two(
-                Rational::from_f32_couple(-p.get(1) - sqrt(d), 2. * p.get(2))
+                Rational::from_f32_couple(-b - sqrt(d), 2. * a)
                     .expect(Polynomial::ERR_NAN_POLY),
-                Rational::from_f32_couple(-p.get(1) + sqrt(d), 2. * p.get(2))
+                Rational::from_f32_couple(-b + sqrt(d), 2. * a)
                     .expect(Polynomial::ERR_NAN_POLY),
             ),
-            d if d < 0.0 => Roots::new_complex(
-                Complex::new(-p.get(1) - sqrt(-d), -p.get(2)),
-                Complex::new(-p.get(1) + sqrt(-d), -p.get(2)),
+            d if d < 0.0 => Roots::Complex(
+                Complex::new(-b / (2. * a) , sqrt(-d) / (2. * a)),
             ),
             _ => Roots::One(
-                Rational::from_f32_couple(-p.get(1), 2. * p.get(2))
+                Rational::from_f32_couple(-b, 2. * a)
                     .expect(Polynomial::ERR_NAN_POLY),
             ),
         }
@@ -177,9 +179,7 @@ impl Sub for Polynomial {
 
 #[cfg(test)]
 mod test {
-    use crate::complex::Complex;
     use crate::polynomial::Polynomial;
-    use crate::rational::Rational;
     use crate::root::Roots;
 
     #[test]

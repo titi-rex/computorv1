@@ -9,7 +9,7 @@ pub enum Roots<T: PartialOrd, V: PartialOrd> {
     Any,
     One(T),
     Two(T, T),
-    Complex(V, V),
+    Complex(V),
 }
 
 impl<T: PartialOrd + Display, V: PartialOrd> Roots<T, V> {
@@ -18,14 +18,6 @@ impl<T: PartialOrd + Display, V: PartialOrd> Roots<T, V> {
             Roots::Two(r1, r2)
         } else {
             Roots::Two(r2, r1)
-        }
-    }
-
-    pub fn new_complex(r1: V, r2: V) -> Roots<T, V> {
-        if r1 <= r2 {
-            Roots::Complex(r1, r2)
-        } else {
-            Roots::Complex(r2, r1)
         }
     }
 }
@@ -38,7 +30,7 @@ impl Display for Roots<Rational, Complex> {
             Roots::Any => write!(f, "Any number is a solution"),
             Roots::One(r) => write!(f, "One real root: {}", r),
             Roots::Two(r1, r2) => write!(f, "Two real root: {} and {}", r1, r2),
-            Roots::Complex(r1, r2) => write!(f, "Two complex roots: {} and {}", r1, r2),
+            Roots::Complex(r) => write!(f, "Two complex roots: {} ± i{}", r.re(), r.im()),
         }
     }
 }
