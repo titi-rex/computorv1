@@ -49,7 +49,6 @@ pub fn sqrt(x: f32) -> f32 {
         r = sqrt_iter(r, x);
     }
     r
-    // x.sqrt()
 }
 
 pub fn pow(x: i32, n: i32) -> i32 {

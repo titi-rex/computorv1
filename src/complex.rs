@@ -17,6 +17,13 @@ impl Complex {
         }
     }
 
+    pub fn from_rational(real: Rational, imag: Rational) -> Complex {
+        Complex {
+            real: real,
+            imag: imag,
+        }
+    }
+
     pub fn modulus(&self) -> f32 {
         let re = self.real.compute();
         let im = self.imag.compute();

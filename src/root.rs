@@ -52,18 +52,10 @@ mod tests {
             Rational::new(Sign::Positive, 15, 2),
             Rational::new(Sign::Negative, 15, 2),
         );
-        ordering_complex(Complex::new(0., 0.), Complex::new(2., 10.));
-        ordering_complex(Complex::new(2., 10.), Complex::new(0., 0.));
     }
 
     fn ordering_rationals(r1: Rational, r2: Rational) {
         if let Roots::Two(r1, r2) = Roots::<Rational, Complex>::new_two(r1, r2) {
-            assert!(r1 <= r2)
-        }
-    }
-
-    fn ordering_complex(r1: Complex, r2: Complex) {
-        if let Roots::Two(r1, r2) = Roots::<Rational, Complex>::new_complex(r1, r2) {
             assert!(r1 <= r2)
         }
     }

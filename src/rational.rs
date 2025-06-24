@@ -34,7 +34,7 @@ impl Rational {
         }
     }
 
-    /// Converts a float into a Rational
+    /// Create from a float 
     pub fn from_f32(f: f32) -> Option<Rational> {
         if !f.is_finite() {
             return None;
@@ -58,6 +58,7 @@ impl Rational {
         }
     }
 
+    /// Create from a numerator and a denominator 
     pub fn from_f32_couple(num: f32, denom: f32) -> Option<Rational> {
         let mut r = Rational::from_f32(num)? / Rational::from_f32(denom)?;
         r.reduce();
@@ -82,7 +83,7 @@ impl Rational {
     /// Compute the Rational as a float
     pub fn compute(&self) -> f32 {
         let tmp = self.sign * (self.numerator as f32 / self.denominator as f32);
-        (tmp * 100000.0).round() / 100000.0
+        (tmp * 1000000.0).round() / 1000000.0
     }
 
     pub fn is_zero(&self) -> bool {
@@ -100,8 +101,7 @@ impl Rational {
 
 impl Display for Rational {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        println!("len for {}: {}", self.numerator, number_len(self.numerator));
-        if number_len(self.numerator) >= 10 {
+        if number_len(self.numerator) >= 5 {
             write!(f, "{}", self.compute())
         } else if self.denominator() == 1 {
             write!(f, "{}{}", self.sign, self.numerator())

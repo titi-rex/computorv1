@@ -20,7 +20,9 @@ fn main() {
     };
 
     println!("Reduced form: {} = 0", eq);
-    println!("Polynomial degree: {}", eq.degree());
+    if eq.degree() > 0 {
+        println!("Polynomial degree: {}", eq.degree());
+    }
 
     if eq.degree() >= 3 {
         return println!("The polynomial degree is strictly greater than 2, I can't solve.");

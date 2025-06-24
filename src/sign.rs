@@ -55,3 +55,36 @@ impl<T: Neg<Output = T>> Mul<T> for Sign {
         }
     }
 }
+
+#[cfg(test)]
+mod test {
+    use crate::sign::Sign;
+
+
+    #[test]
+    fn creation(){
+        let s1 = Sign::from(0);
+        let s2 = Sign::from(2);
+        let s3 = Sign::from(-5);
+        let s4 = Sign::from(-1);
+
+        assert!(s1 == Sign::Positive);
+        assert!(s2 == Sign::Positive);
+        assert!(s3 == Sign::Negative);
+        assert!(s4 == Sign::Negative);
+    }
+
+    #[test]
+    fn addition() {
+        assert!(Sign::Positive + Sign::Positive == Sign::Positive);
+        assert!(Sign::Negative + Sign::Negative == Sign::Positive);
+        assert!(Sign::Positive + Sign::Negative == Sign::Negative);
+    }
+
+    #[test]
+    fn multiplication() {
+        assert!(Sign::Positive * Sign::Positive == Sign::Positive);
+        assert!(Sign::Negative * Sign::Negative == Sign::Positive);
+        assert!(Sign::Positive * Sign::Negative == Sign::Negative);
+    }
+}

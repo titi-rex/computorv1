@@ -64,13 +64,19 @@ impl Polynomial {
     }
 
     pub fn degree(&self) -> i32 {
-        self.0.len() as i32 - 1
+        let d = self.0.len() as i32 - 1;
+        if d < 0 {
+            0
+        } else {
+            d
+        }
     }
 
     pub fn discriminant(p: &Polynomial) -> f32 {
         p.get(1) * p.get(1) - 4. * p.get(2) * p.get(0)
     }
 
+    /// Search roots
     pub fn solve_roots(&self) -> Roots<Rational, Complex> {
         match self.degree() {
             0 if *self.get(0) == 0. => Roots::Any,
@@ -84,8 +90,7 @@ impl Polynomial {
     fn solve_affine(p: &Polynomial) -> Roots<Rational, Complex> {
         Roots::One(Rational::from_f32_couple(-p.get(0), *p.get(1)).expect(Polynomial::ERR_NAN_POLY))
     }
-// c = -b/2a ± i V|d|/2a
-// 0:c 1:b 2:a
+
     fn solve_quadratic(p: &Polynomial) -> Roots<Rational, Complex> {
         let a = p.get(2);
         let b = p.get(1);
@@ -97,7 +102,10 @@ impl Polynomial {
                     .expect(Polynomial::ERR_NAN_POLY),
             ),
             d if d < 0.0 => Roots::Complex(
-                Complex::new(-b / (2. * a) , sqrt(-d) / (2. * a)),
+                Complex::from_rational(
+                    Rational::from_f32_couple(-b, 2. * a).expect(Polynomial::ERR_NAN_POLY),
+                    Rational::from_f32_couple(sqrt(-d), 2. * a).expect(Polynomial::ERR_NAN_POLY)
+                )
             ),
             _ => Roots::One(
                 Rational::from_f32_couple(-b, 2. * a)
