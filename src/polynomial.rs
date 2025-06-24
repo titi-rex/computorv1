@@ -64,12 +64,8 @@ impl Polynomial {
     }
 
     pub fn degree(&self) -> i32 {
-        let d = self.0.len() as i32 - 1;
-        if d < 0 {
-            0
-        } else {
-            d
-        }
+        let d = self.0.keys().max().expect("Polynomial exponent should not be empty");
+        *d
     }
 
     pub fn discriminant(p: &Polynomial) -> f32 {
@@ -180,6 +176,9 @@ impl Sub for Polynomial {
             } else {
                 result.0.remove(exponent);
             }
+        }
+        if result.0.is_empty() {
+            result.insert(0, 0.0);
         }
         result
     }

@@ -2,20 +2,23 @@ pub fn gcd(a: u64, b: u64) -> u64 {
     let mut a = a;
     let mut b = b;
     let mut i: u32 = 0;
-
+    println!("he1");
     while a % 2 == 0 && b % 2 == 0 {
         a /= 2;
         b /= 2;
         i += 1;
     }
+    println!("he3");
 
     while a % 2 == 0 {
         a /= 2;
     }
+    println!("he4");
 
     while b % 2 == 0 {
         b /= 2;
     }
+    println!("he5");
 
     while a != b {
         if a > b {
@@ -30,6 +33,7 @@ pub fn gcd(a: u64, b: u64) -> u64 {
             }
         }
     }
+    println!("he6");
 
     2u64.pow(i as u32) * a
     // pow(2, i) as u64 * a

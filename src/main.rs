@@ -20,11 +20,12 @@ fn main() {
     };
 
     println!("Reduced form: {} = 0", eq);
-    if eq.degree() > 0 {
-        println!("Polynomial degree: {}", eq.degree());
+    let degree = eq.degree();
+    if degree > 0 {
+        println!("Polynomial degree: {}", degree);
     }
 
-    if eq.degree() >= 3 {
+    if degree >= 3 {
         return println!("The polynomial degree is strictly greater than 2, I can't solve.");
     }
 
@@ -37,3 +38,6 @@ fn main() {
         Roots::Complex(r) => println!("Discriminant is strictly negative\n{}", Roots::Complex(r)),
     }
 }
+
+
+// "-4 * x^0 + 6 * x^1 + 2 * x^2 =  -4 * x^0"
