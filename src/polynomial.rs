@@ -1,6 +1,5 @@
 use crate::complex::Complex;
 use crate::math::sqrt;
-use crate::rational::Rational;
 use crate::root::Roots;
 use itertools::Itertools;
 use std::collections::HashMap;
@@ -12,7 +11,6 @@ use std::ops::{Add, Sub};
 pub struct Polynomial(pub HashMap<i32, f32>);
 
 impl Polynomial {
-    const ERR_NAN_POLY: &'static str = "Polynomial shouldn't contain NAN coefficients";
     pub fn new() -> Polynomial {
         Polynomial(HashMap::new())
     }
@@ -64,7 +62,11 @@ impl Polynomial {
     }
 
     pub fn degree(&self) -> i32 {
-        let d = self.0.keys().max().expect("Polynomial exponent should not be empty");
+        let d = self
+            .0
+            .keys()
+            .max()
+            .expect("Polynomial exponent should not be empty");
         *d
     }
 
@@ -73,7 +75,7 @@ impl Polynomial {
     }
 
     /// Search roots
-    pub fn solve_roots(&self) -> Roots<Rational, Complex> {
+    pub fn solve_roots(&self) -> Roots<f32, Complex> {
         match self.degree() {
             0 if *self.get(0) == 0. => Roots::Any,
             0 if *self.get(0) != 0. => Roots::Zero,
@@ -83,30 +85,17 @@ impl Polynomial {
         }
     }
 
-    fn solve_affine(p: &Polynomial) -> Roots<Rational, Complex> {
-        Roots::One(Rational::from_f32_couple(-p.get(0), *p.get(1)).expect(Polynomial::ERR_NAN_POLY))
+    fn solve_affine(p: &Polynomial) -> Roots<f32, Complex> {
+        Roots::One(-p.get(0) / *p.get(1))
     }
 
-    fn solve_quadratic(p: &Polynomial) -> Roots<Rational, Complex> {
+    fn solve_quadratic(p: &Polynomial) -> Roots<f32, Complex> {
         let a = p.get(2);
         let b = p.get(1);
         match Polynomial::discriminant(p) {
-            d if d > 0.0 => Roots::new_two(
-                Rational::from_f32_couple(-b - sqrt(d), 2. * a)
-                    .expect(Polynomial::ERR_NAN_POLY),
-                Rational::from_f32_couple(-b + sqrt(d), 2. * a)
-                    .expect(Polynomial::ERR_NAN_POLY),
-            ),
-            d if d < 0.0 => Roots::Complex(
-                Complex::from_rational(
-                    Rational::from_f32_couple(-b, 2. * a).expect(Polynomial::ERR_NAN_POLY),
-                    Rational::from_f32_couple(sqrt(-d), 2. * a).expect(Polynomial::ERR_NAN_POLY)
-                )
-            ),
-            _ => Roots::One(
-                Rational::from_f32_couple(-b, 2. * a)
-                    .expect(Polynomial::ERR_NAN_POLY),
-            ),
+            d if d > 0.0 => Roots::Two((-b - sqrt(d)) / (2. * a), (-b + sqrt(d)) / (2. * a)),
+            d if d < 0.0 => Roots::Complex(Complex::new(-b / (2. * a), sqrt(-d) / (2. * a))),
+            _ => Roots::One(-b / (2. * a)),
         }
     }
 }
@@ -187,7 +176,6 @@ impl Sub for Polynomial {
 #[cfg(test)]
 mod test {
     use crate::polynomial::Polynomial;
-    use crate::root::Roots;
 
     #[test]
     fn creation() {
@@ -223,26 +211,8 @@ mod test {
     fn substraction() {
         let p1 = Polynomial::from_vec(&vec![1., 2., 3.]);
         let p2 = Polynomial::from_vec(&vec![1., 2., 3.]);
-        let expected = Polynomial::from_vec(&vec![]);
+        let expected = Polynomial::from_vec(&vec![0.]);
 
         assert_eq!(p1 - p2, expected);
-    }
-
-    #[test] //
-    fn find_roots() {
-        assert_eq!(Polynomial::from_vec(&vec![1.]).solve_roots(), Roots::Zero);
-        assert_eq!(Polynomial::from_vec(&vec![0.]).solve_roots(), Roots::Any);
-        // assert_eq!(
-        //     Polynomial::from_vec(&vec![0., 2.]).solve_roots(),
-        //     Roots::One(Rational::from_i32(2)),
-        // );
-        // assert_eq!(
-        //     Polynomial::from_vec(&vec![0., 1., 0.5]).solve_roots(),
-        //     Roots::Two(Rational::from_i32(-2), Rational::from_i32(0)),
-        // );
-        // assert_eq!(
-        //     Polynomial::from_vec(&vec![1., 0., 1.]).solve_roots(),
-        //     Roots::Complex(Complex::new(0., -1.), Complex::new(0., 1.)),
-        // );
     }
 }

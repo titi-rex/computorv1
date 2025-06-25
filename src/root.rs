@@ -1,5 +1,4 @@
 use crate::complex::Complex;
-use crate::rational::Rational;
 use std::fmt::Display;
 
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -12,17 +11,7 @@ pub enum Roots<T: PartialOrd, V: PartialOrd> {
     Complex(V),
 }
 
-impl<T: PartialOrd + Display, V: PartialOrd> Roots<T, V> {
-    pub fn new_two(r1: T, r2: T) -> Roots<T, V> {
-        if r1 <= r2 {
-            Roots::Two(r1, r2)
-        } else {
-            Roots::Two(r2, r1)
-        }
-    }
-}
-
-impl Display for Roots<Rational, Complex> {
+impl Display for Roots<f32, Complex> {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
             Roots::Unsolvable => write!(f, "Can't solve"),
@@ -35,28 +24,3 @@ impl Display for Roots<Rational, Complex> {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::complex::Complex;
-    use crate::rational::Rational;
-    use crate::sign::Sign;
-
-    #[test]
-    fn ordering() {
-        ordering_rationals(
-            Rational::new(Sign::Positive, 15, 2),
-            Rational::new(Sign::Positive, 15, 2),
-        );
-        ordering_rationals(
-            Rational::new(Sign::Positive, 15, 2),
-            Rational::new(Sign::Negative, 15, 2),
-        );
-    }
-
-    fn ordering_rationals(r1: Rational, r2: Rational) {
-        if let Roots::Two(r1, r2) = Roots::<Rational, Complex>::new_two(r1, r2) {
-            assert!(r1 <= r2)
-        }
-    }
-}

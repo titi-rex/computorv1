@@ -1,40 +1,31 @@
 use crate::math::sqrt;
-use crate::rational::Rational;
 use std::cmp::Ordering;
 use std::fmt::Display;
+use num::Zero;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Complex {
-    real: Rational,
-    imag: Rational,
+    real: f32,
+    imag: f32,
 }
 
 impl Complex {
     pub fn new(real: f32, imag: f32) -> Complex {
         Complex {
-            real: Rational::from_f32(real).unwrap(),
-            imag: Rational::from_f32(imag).unwrap(),
+            real,
+            imag,
         }
     }
-
-    pub fn from_rational(real: Rational, imag: Rational) -> Complex {
-        Complex {
-            real: real,
-            imag: imag,
-        }
-    }
-
+    
     pub fn modulus(&self) -> f32 {
-        let re = self.real.compute();
-        let im = self.imag.compute();
-        sqrt(re * re + im + im)
+        sqrt(self.real * self.real + self.imag * self.imag)
     }
 
-    pub fn re(&self) -> &Rational {
+    pub fn re(&self) -> &f32 {
         &self.real
     }
 
-    pub fn im(&self) -> &Rational {
+    pub fn im(&self) -> &f32 {
         &self.imag
     }
 }
