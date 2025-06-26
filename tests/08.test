@@ -1,0 +1,4 @@
+EXPRESSION="0 * x^0 + 2 * x^1 + 6 * x^2 = -1 * x^0 - 2 * x^1 + 2 * x^2"
+REDUCED="-1 -4x -4x² = 0"
+N_ROOTS=1
+ROOT=-0.5

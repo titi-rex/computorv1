@@ -1,0 +1,5 @@
+EXPRESSION="1 * X^0 + 2 * X^1 + 5 * X^2 = 0"
+REDUCED="1 + 2x + 5x² = 0"
+N_ROOTS="2i"
+ROOT="-1/5 ± 2i/5 (-0.2 ± i0.4)"
+

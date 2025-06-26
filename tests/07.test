@@ -1,0 +1,5 @@
+EXPRESSION="-1 * x^0 -2 * x^1 + 1 * x^2 = 0"
+REDUCED="-1 -2x + x² = 0"
+N_ROOTS=2
+ROOT=2.41421
+ROOT_2=-0.41421

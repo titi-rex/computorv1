@@ -1,0 +1,4 @@
+EXPRESSION="5 * X^0 + 4 * X^1 = 4 * X^0"
+REDUCED="1 + 4x = 0"
+N_ROOTS=1
+ROOT=-0.25

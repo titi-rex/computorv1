@@ -1,0 +1,16 @@
+EXPRESSION: base expression
+REDUCED: reduced form
+N_ROOTS: number of solutions :
+    0 -> no solution
+    "inf" -> any real number
+    1 -> one solution
+    2 -> two real solutions
+    "2i" -> two complex solutions
+ROOT: the first root
+ROOT: the second root if existing
+
+EXPRESSION=""
+REDUCED=""
+N_ROOTS=
+ROOT=
+ROOT_2=
