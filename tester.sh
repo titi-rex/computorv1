@@ -1,19 +1,20 @@
 #!/bin/bash
 
-EXE=$1
-
 RESET="\e[0m"
-BLACK="\e[0;30m"
 RED="\e[0;31m"
-GREEN="\e[0;32m"
 GREEN_B="\e[1;32m"
 YELLOW="\e[0;33m"
 YELLOW_B="\e[1;33m"
 BLUE="\e[0;34m"
-PURPLE="\e[0;35m"
 PURPLE_B="\e[1;35m"
-CYAN="\e[0;36m"
-WHITE="\e[0;37m"
+
+EXE=$1
+
+if [[ -z "$EXE" ]]; then
+    printf "$RED""No executable provided\n$RESET"
+    exit
+fi
+
 
 
 print_exp() {
@@ -49,4 +50,3 @@ for filename in tests/*.test; do
 done
 
 printf "$BLUE""\n#===============================================#\n$RESET"
-
